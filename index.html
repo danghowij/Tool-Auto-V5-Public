@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Tool-Auto-V5</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+
+        .header-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .header-row label {
+            font-weight: bold;
+        }
+
+        .header-row select {
+            font-size: 18px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .overview-row {
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 6px 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        h2 {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header-row">
+        <label for="keySelect"><strong>PC NAME:</strong></label>
+        <select id="keySelect"></select>
+    </div>
+    <br />
+    <div class="overview-row" id="overviewText"></div>
+
+    <table id="miniappTable">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Miniapp</th>
+                <th>Total</th>
+                <th>Success</th>
+                <th>Failed</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        const firebaseUrl = 'https://tool-auto-v5-default-rtdb.asia-southeast1.firebasedatabase.app/.json';
+        let rawData = {};
+        const keySelect = document.getElementById('keySelect');
+
+        async function fetchDataAndUpdateUI() {
+            try {
+                const response = await fetch(firebaseUrl);
+                rawData = await response.json();
+
+                if (keySelect.options.length === 0) {
+                    for (const key in rawData) {
+                        const option = document.createElement('option');
+                        option.value = key;
+                        option.textContent = key;
+                        keySelect.appendChild(option);
+                    }
+                    const firstKey = Object.keys(rawData)[0];
+                    keySelect.value = firstKey;
+                }
+
+                const selectedKey = keySelect.value;
+                displayData(rawData[selectedKey]);
+
+            } catch (error) {
+                console.error('Lỗi khi tải dữ liệu:', error);
+            }
+        }
+
+        function displayData(dataString) {
+            let data;
+            try {
+                data = JSON.parse(dataString);
+            } catch (err) {
+                console.error("Lỗi parse JSON:", err);
+                return;
+            }
+
+            const overview = data.overview || {};
+            const overviewText = document.getElementById('overviewText');
+
+            const startTime = data.start_time || 'N/A';
+            const updateTime = data.update_time || 'N/A';
+
+            overviewText.innerHTML = `
+                <div style="margin-top: 5px;">
+                    <span><strong>Start Time:</strong> ${startTime}</span>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <span><strong>Update Time:</strong> ${updateTime}</span>
+                </div>
+                <div>
+                    <span><strong>Total:</strong> ${overview.total ?? 0}</span>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <span><strong>Miniapp:</strong> ${overview.miniapp ?? 0}</span>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <span><strong>Success:</strong> ${overview.success ?? 0}</span>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <span><strong>Failed:</strong> ${overview.failed ?? 0}</span>
+                </div>
+            `;
+            
+            const miniapps = data.miniapp || [];
+            const tbody = document.querySelector("#miniappTable tbody");
+            tbody.innerHTML = '';
+            miniapps.forEach((app, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${app.miniapp}</td>
+                    <td>${app.total}</td>
+                    <td>${app.success}</td>
+                    <td>${app.failed}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        keySelect.addEventListener('change', () => {
+            const selectedKey = keySelect.value;
+            if (rawData[selectedKey]) {
+                displayData(rawData[selectedKey]);
+            }
+        });
+
+        fetchDataAndUpdateUI();
+        setInterval(fetchDataAndUpdateUI, 30000);
+    </script>
+
+</body>
+
+</html>
