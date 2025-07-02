@@ -1,0 +1,173 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+.container {
+  max-width: 960px;
+  margin: auto;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+}
+
+h2, h3, h4 {
+  margin-top: 30px;
+  color: #333;
+}
+
+label {
+  font-weight: bold;
+}
+
+select {
+  padding: 5px 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+button {
+  background-color: #2e8bff;
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  margin: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #1a70d1;
+}
+
+#countdown {
+  margin-left: 15px;
+  font-style: italic;
+  color: #666;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+table th,
+table td {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+table th {
+  background-color: #f0f0f0;
+}
+
+#startTime,
+#lastUpdated,
+#timeAgo {
+  font-weight: bold;
+  color: #444;
+}
+
+.overview-box {
+  background-color: #f0f4ff;
+  padding: 10px;
+  border-left: 4px solid #2e8bff;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.top-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.pc-selector {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+dialog {
+  width: 90%;
+  max-width: 800px;
+  padding: 20px;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+#historyList button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 5px;
+  padding: 6px;
+  border-radius: 4px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+#historyList button:hover {
+  background-color: #5a6268;
+}
+
+#historyList button.selected-history {
+  background-color: #198754 !important;
+}
+
+#historyDetail {
+  background-color: #f1f1f1;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 6px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .table-wrapper table {
+    font-size: 13px;
+  }
+
+  table th, table td {
+    padding: 6px;
+  }
+
+  canvas {
+    max-width: 100%;
+  }
+
+  button {
+    margin: 6px 4px;
+  }
+}

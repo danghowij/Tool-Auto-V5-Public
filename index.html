@@ -1,171 +1,66 @@
 <!DOCTYPE html>
-<html lang="vi">
-
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Tool-Auto-V5</title>
-    <style>
-        body {
-            font-family: Arial;
-            padding: 20px;
-        }
-
-        .header-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-            font-size: 20px;
-        }
-
-        .header-row label {
-            font-weight: bold;
-        }
-
-        .header-row select {
-            font-size: 18px;
-            padding: 6px 12px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-        }
-
-        .overview-row {
-            margin: 10px 0;
-            font-weight: bold;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th,
-        td {
-            border: 1px solid #ccc;
-            padding: 6px 10px;
-            text-align: center;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        h2 {
-            margin-bottom: 5px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>PC Monitoring Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
-    <div class="header-row">
-        <label for="keySelect"><strong>PC NAME:</strong></label>
-        <select id="keySelect"></select>
+  <div class="container">
+    <h2>🔥 PC Monitoring Dashboard</h2>
+
+    <div class="top-bar">
+      <div class="pc-selector">
+        <label for="pcSelector">Select PC:</label>
+        <select id="pcSelector"></select>
+        <button onclick="fetchPcList()">🔁 Reload PC List</button>
+      </div>
+      <button onclick="openHistoryDialog()">📜 View History</button>
     </div>
-    <br />
-    <div class="overview-row" id="overviewText"></div>
 
-    <table id="miniappTable">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Miniapp</th>
-                <th>Total</th>
-                <th>Success</th>
-                <th>Failed</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <div>
+      <p>Start time: <span id="startTime">--</span>    |    Last updated: <span id="lastUpdated">--</span> (<span id="timeAgo">--</span> ago)</p>
+      <button onclick="fetchLatest()">🔃 Manual Refresh</button>
+      <span id="countdown">⏳ Next refresh in 30s</span>
+    </div>
 
-    <script>
-        const firebaseUrl = 'https://tool-auto-v5-default-rtdb.asia-southeast1.firebasedatabase.app/.json';
-        let rawData = {};
-        const keySelect = document.getElementById('keySelect');
+    <h3>📌 Overview</h3>
+    <div id="overviewBlock" class="overview-box"></div>
 
-        async function fetchDataAndUpdateUI() {
-            try {
-                const response = await fetch(firebaseUrl);
-                rawData = await response.json();
+    <h3>📊 Miniapp Status</h3>
+    <div class="table-wrapper">
+      <table id="miniappTable"></table>
+    </div>
 
-                if (keySelect.options.length === 0) {
-                    for (const key in rawData) {
-                        const option = document.createElement('option');
-                        option.value = key;
-                        option.textContent = key;
-                        keySelect.appendChild(option);
-                    }
-                    const firstKey = Object.keys(rawData)[0];
-                    keySelect.value = firstKey;
-                }
+    <h3>⚠️ Recent Runs</h3>
+    <div class="table-wrapper">
+      <table id="recentRunTable"></table>
+    </div>
 
-                const selectedKey = keySelect.value;
-                displayData(rawData[selectedKey]);
+    <h3>📈 CPU / RAM Metrics</h3>
+    <canvas id="metricsChart" height="150"></canvas>
+  </div>
 
-            } catch (error) {
-                console.error('Lỗi khi tải dữ liệu:', error);
-            }
-        }
+  <!-- Dialog History -->
+  <dialog id="historyModal">
+    <h3>📚 History</h3>
+    <div id="historyList"></div>
+    <div id="historyDetail">
+      <div id="historyMeta"></div>
 
-        function displayData(dataString) {
-            let data;
-            try {
-                data = JSON.parse(dataString);
-            } catch (err) {
-                console.error("Lỗi parse JSON:", err);
-                return;
-            }
+      <h4>📊 Miniapp (History)</h4>
+      <table id="historyMiniappTable"></table>
 
-            const overview = data.overview || {};
-            const overviewText = document.getElementById('overviewText');
+      <h4>⚠️ Recent Run (History)</h4>
+      <table id="historyRecentRunTable"></table>
 
-            const startTime = data.start_time || 'N/A';
-            const updateTime = data.update_time || 'N/A';
+      <h4>📈 Metrics (History)</h4>
+      <canvas id="historyMetricsChart" height="150"></canvas>
+    </div>
+    <button onclick="closeHistoryDialog()">❌ Close</button>
+  </dialog>
 
-            overviewText.innerHTML = `
-                <div style="margin-top: 5px;">
-                    <span><strong>Start Time:</strong> ${startTime}</span>
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                    <span><strong>Update Time:</strong> ${updateTime}</span>
-                </div>
-                <div>
-                    <span><strong>Total:</strong> ${overview.total ?? 0}</span>
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                    <span><strong>Miniapp:</strong> ${overview.miniapp ?? 0}</span>
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                    <span><strong>Success:</strong> ${overview.success ?? 0}</span>
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                    <span><strong>Failed:</strong> ${overview.failed ?? 0}</span>
-                </div>
-            `;
-            
-            const miniapps = data.miniapp || [];
-            const tbody = document.querySelector("#miniappTable tbody");
-            tbody.innerHTML = '';
-            miniapps.forEach((app, index) => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${app.miniapp}</td>
-                    <td>${app.total}</td>
-                    <td>${app.success}</td>
-                    <td>${app.failed}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        keySelect.addEventListener('change', () => {
-            const selectedKey = keySelect.value;
-            if (rawData[selectedKey]) {
-                displayData(rawData[selectedKey]);
-            }
-        });
-
-        fetchDataAndUpdateUI();
-        setInterval(fetchDataAndUpdateUI, 30000);
-    </script>
-
+  <script src="script.js"></script>
 </body>
-
 </html>
