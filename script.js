@@ -65,7 +65,7 @@ function showMiniapps(apps) {
 
 function showRecentRuns(runs) {
   const table = document.getElementById('recentRunTable');
-  table.innerHTML = `<tr><th>#</th><th>Miniapp</th><th>Profile</th><th>Result</th><th>Detail</th></tr>`;
+  table.innerHTML = `<tr><th>#</th><th>Miniapp</th><th>Name</th><th>Result</th><th>Detail</th></tr>`;
   runs.forEach((r, i) => {
     table.innerHTML += `<tr><td>${i + 1}</td><td>${r.miniapp}</td><td>${r.name}</td><td>${r.result}</td><td>${r.detail?.slice(0, 40)}...</td></tr>`;
   });
@@ -186,8 +186,7 @@ function showHistoryDetail(data, key) {
   document.getElementById('historyMeta').innerHTML = `
     <p><strong>Start:</strong> ${data.start_time}<br>
        <strong>End:</strong> ${data.update_time}</p>
-    <p><strong>Total:</strong> ${data.overview.total},
-       <strong>Failed:</strong> ${data.overview.failed}</p>
+    <p><strong>Total:</strong> ${data.overview.total}, <strong>Miniapp:</strong> ${data.overview.miniapp}, <strong>Success:</strong> ${data.overview.success}, <strong>Failed:</strong> ${data.overview.failed}</p>
   `;
 
   showHistoryMiniapps(data.miniapp);
@@ -205,7 +204,7 @@ function showHistoryMiniapps(apps) {
 
 function showHistoryRecentRuns(runs) {
   const table = document.getElementById('historyRecentRunTable');
-  table.innerHTML = `<tr><th>#</th><th>Miniapp</th><th>Profile</th><th>Result</th><th>Detail</th></tr>`;
+  table.innerHTML = `<tr><th>#</th><th>Miniapp</th><th>Name</th><th>Result</th><th>Detail</th></tr>`;
   runs.forEach((r, i) => {
     table.innerHTML += `<tr><td>${i + 1}</td><td>${r.miniapp}</td><td>${r.name}</td><td>${r.result}</td><td>${r.detail?.slice(0, 40)}...</td></tr>`;
   });
