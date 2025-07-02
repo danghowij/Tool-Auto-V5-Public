@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>PC Monitoring Dashboard</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
   <div class="container">
     <h2>🔥 PC Monitoring Dashboard</h2>
@@ -20,7 +22,8 @@
     </div>
 
     <div>
-      <p>Start time: <span id="startTime">--</span>    |    Last updated: <span id="lastUpdated">--</span> (<span id="timeAgo">--</span> ago)</p>
+      <span>Start time: <span id="startTime">--</span> | Last updated: <span id="lastUpdated">--</span> (<span
+          id="timeAgo">--</span> ago)</span></br></br>
       <button onclick="fetchLatest()">🔃 Manual Refresh</button>
       <span id="countdown">⏳ Next refresh in 30s</span>
     </div>
@@ -63,4 +66,5 @@
 
   <script src="script.js"></script>
 </body>
+
 </html>
