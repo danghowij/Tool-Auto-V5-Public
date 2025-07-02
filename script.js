@@ -65,9 +65,9 @@ function showMiniapps(apps) {
 
 function showRecentRuns(runs) {
   const table = document.getElementById('recentRunTable');
-  table.innerHTML = `<tr><th>#</th><th>Miniapp</th><th>Name</th><th>Result</th><th>Detail</th></tr>`;
+  table.innerHTML = `<tr><th>#</th><th>Miniapp</th><th>Name</th><th>Result</th><th>Time</th></tr>`;
   runs.forEach((r, i) => {
-    table.innerHTML += `<tr><td>${i + 1}</td><td>${r.miniapp}</td><td>${r.name}</td><td>${r.result}</td><td>${r.detail?.slice(0, 40)}...</td></tr>`;
+    table.innerHTML += `<tr><td>${i + 1}</td><td>${r.miniapp}</td><td>${r.name}</td><td>${r.result}</td><td>${r.run_time}</td></tr>`;
   });
 }
 
@@ -204,9 +204,9 @@ function showHistoryMiniapps(apps) {
 
 function showHistoryRecentRuns(runs) {
   const table = document.getElementById('historyRecentRunTable');
-  table.innerHTML = `<tr><th>#</th><th>Miniapp</th><th>Name</th><th>Result</th><th>Detail</th></tr>`;
+  table.innerHTML = `<tr><th>#</th><th>Miniapp</th><th>Name</th><th>Result</th><th>Time</th></tr>`;
   runs.forEach((r, i) => {
-    table.innerHTML += `<tr><td>${i + 1}</td><td>${r.miniapp}</td><td>${r.name}</td><td>${r.result}</td><td>${r.detail?.slice(0, 40)}...</td></tr>`;
+    table.innerHTML += `<tr><td>${i + 1}</td><td>${r.miniapp}</td><td>${r.name}</td><td>${r.result}</td><td>${r.run_time}</td></tr>`;
   });
 }
 
