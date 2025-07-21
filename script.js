@@ -4,6 +4,10 @@ let selectedPc = localStorage.getItem('selected-pc-name') || null;
 let refreshInterval = null;
 let countdown = 30;
 let currentSelectedButton = null;
+let currentRecentRunsData = null;
+let currentRecentRunsFilter = 'all';
+let currentHistoryData = null;
+let currentHistoryFilter = 'all';
 
 async function fetchPcList() {
   const res = await fetch(PC_LIST_URL);
@@ -41,7 +45,8 @@ async function fetchLatest() {
 
   showOverview(data.overview);
   showMiniapps(data.miniapp);
-  showRecentRuns(data.recent_run || []);
+  currentRecentRunsData = data.recent_run || {};
+  showRecentRuns(currentRecentRunsFilter);
   showMetricsChart(data.metrics);
   updateTimeInfo(data.start_time, data.update_time);
 }
@@ -63,9 +68,28 @@ function showMiniapps(apps) {
   });
 }
 
-function showRecentRuns(runs) {
+function filterRecentRuns(filter) {
+  currentRecentRunsFilter = filter;
+
+  // Update button states
+  document.getElementById('allBtn').classList.remove('active');
+  document.getElementById('successBtn').classList.remove('active');
+  document.getElementById('failedBtn').classList.remove('active');
+  document.getElementById(filter + 'Btn').classList.add('active');
+
+  showRecentRuns(filter);
+}
+
+function showRecentRuns(filter = 'all') {
   const table = document.getElementById('recentRunTable');
   table.innerHTML = `<tr><th>#</th><th>Miniapp</th><th>Name</th><th>Result</th><th>Time</th></tr>`;
+
+  if (!currentRecentRunsData || !currentRecentRunsData[filter]) {
+    table.innerHTML += `<tr><td colspan="5">No record found</td></tr>`;
+    return;
+  }
+
+  const runs = currentRecentRunsData[filter];
   runs.forEach((r, i) => {
     table.innerHTML += `<tr><td>${i + 1}</td><td>${r.miniapp}</td><td>${r.name}</td><td>${r.result}</td><td>${r.run_time}</td></tr>`;
   });
@@ -190,7 +214,13 @@ function showHistoryDetail(data, key) {
   `;
 
   showHistoryMiniapps(data.miniapp);
-  showHistoryRecentRuns(data.recent_run || []);
+  currentHistoryData = data.recent_run || {};
+  currentHistoryFilter = 'all';
+  // Reset history filter buttons
+  document.getElementById('historyAllBtn').classList.add('active');
+  document.getElementById('historySuccessBtn').classList.remove('active');
+  document.getElementById('historyFailedBtn').classList.remove('active');
+  showHistoryRecentRuns(currentHistoryFilter);
   showHistoryMetricsChart(data.metrics);
 }
 
@@ -202,9 +232,28 @@ function showHistoryMiniapps(apps) {
   });
 }
 
-function showHistoryRecentRuns(runs) {
+function filterHistoryRecentRuns(filter) {
+  currentHistoryFilter = filter;
+
+  // Update button states
+  document.getElementById('historyAllBtn').classList.remove('active');
+  document.getElementById('historySuccessBtn').classList.remove('active');
+  document.getElementById('historyFailedBtn').classList.remove('active');
+  document.getElementById('history' + filter.charAt(0).toUpperCase() + filter.slice(1) + 'Btn').classList.add('active');
+
+  showHistoryRecentRuns(filter);
+}
+
+function showHistoryRecentRuns(filter = 'all') {
   const table = document.getElementById('historyRecentRunTable');
   table.innerHTML = `<tr><th>#</th><th>Miniapp</th><th>Name</th><th>Result</th><th>Time</th></tr>`;
+
+  if (!currentHistoryData || !currentHistoryData[filter]) {
+    table.innerHTML += `<tr><td colspan="5">No record found</td></tr>`;
+    return;
+  }
+
+  const runs = currentHistoryData[filter];
   runs.forEach((r, i) => {
     table.innerHTML += `<tr><td>${i + 1}</td><td>${r.miniapp}</td><td>${r.name}</td><td>${r.result}</td><td>${r.run_time}</td></tr>`;
   });

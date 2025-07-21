@@ -36,7 +36,14 @@
       <table id="miniappTable"></table>
     </div>
 
-    <h3>⚠️ Recent Runs</h3>
+    <div class="recent-runs-header">
+      <h3>⚠️ Recent Runs</h3>
+      <div class="recent-runs-filters">
+        <button id="allBtn" onclick="filterRecentRuns('all')" class="active">All</button>
+        <button id="successBtn" onclick="filterRecentRuns('success')">Success</button>
+        <button id="failedBtn" onclick="filterRecentRuns('failed')">Failed</button>
+      </div>
+    </div>
     <div class="table-wrapper">
       <table id="recentRunTable"></table>
     </div>
@@ -55,7 +62,14 @@
       <h4>📊 Miniapp (History)</h4>
       <table id="historyMiniappTable"></table>
 
-      <h4>⚠️ Recent Run (History)</h4>
+      <div class="recent-runs-header">
+        <h4>⚠️ Recent Run (History)</h4>
+        <div class="recent-runs-filters">
+          <button id="historyAllBtn" onclick="filterHistoryRecentRuns('all')" class="active">All</button>
+          <button id="historySuccessBtn" onclick="filterHistoryRecentRuns('success')">Success</button>
+          <button id="historyFailedBtn" onclick="filterHistoryRecentRuns('failed')">Failed</button>
+        </div>
+      </div>
       <table id="historyRecentRunTable"></table>
 
       <h4>📈 Metrics (History)</h4>
