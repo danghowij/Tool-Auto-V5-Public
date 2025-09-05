@@ -55,7 +55,7 @@ function showOverview(overview) {
   const block = document.getElementById('overviewBlock');
   block.innerHTML = `
     <p>
-      <strong>Total:</strong> ${overview.total}  |  <strong>Miniapps:</strong> ${overview.miniapp}  |  <strong>Success:</strong> ${overview.success}  |  <strong>Failed:</strong> ${overview.failed}  |  <strong>CPU:</strong> ${overview.cpu}%  |  <strong>RAM:</strong> ${overview.ram}%
+      <strong>Total:</strong> ${overview.total}  |  <strong>Miniapps:</strong> ${overview.miniapp}  |  <strong>Success:</strong> ${overview.success}  |  <strong>Failed:</strong> ${overview.failed}  |  <strong>CPU:</strong> ${overview.cpu}%  |  <strong>RAM:</strong> ${overview.ram}%  |  <strong>GPU:</strong> ${overview.gpu}%
     </p>
   `;
 }
@@ -100,6 +100,7 @@ function showMetricsChart(metrics) {
   const labels = Object.keys(metrics);
   const cpu = labels.map(t => metrics[t].cpu);
   const ram = labels.map(t => metrics[t].ram);
+  const gpu = labels.map(t => metrics[t].gpu || 0.0);
 
   const ctx = document.getElementById('metricsChart').getContext('2d');
   if (latestChart) latestChart.destroy();
@@ -109,7 +110,8 @@ function showMetricsChart(metrics) {
       labels,
       datasets: [
         { label: 'CPU %', data: cpu, borderColor: 'red', fill: false },
-        { label: 'RAM %', data: ram, borderColor: 'blue', fill: false }
+        { label: 'RAM %', data: ram, borderColor: 'blue', fill: false },
+        { label: 'GPU %', data: gpu, borderColor: 'green', fill: false }
       ]
     }
   });
@@ -264,6 +266,7 @@ function showHistoryMetricsChart(metrics) {
   const labels = Object.keys(metrics);
   const cpu = labels.map(t => metrics[t].cpu);
   const ram = labels.map(t => metrics[t].ram);
+  const gpu = labels.map(t => metrics[t].gpu || 0.0);
 
   const ctx = document.getElementById('historyMetricsChart').getContext('2d');
   if (historyChart) historyChart.destroy();
@@ -273,7 +276,8 @@ function showHistoryMetricsChart(metrics) {
       labels,
       datasets: [
         { label: 'CPU %', data: cpu, borderColor: 'red', fill: false },
-        { label: 'RAM %', data: ram, borderColor: 'blue', fill: false }
+        { label: 'RAM %', data: ram, borderColor: 'blue', fill: false },
+        { label: 'GPU %', data: gpu, borderColor: 'green', fill: false }
       ]
     }
   });
