@@ -9,6 +9,71 @@ let currentRecentRunsData = null;
 let currentRecentRunsFilter = 'all';
 let currentHistoryData = null;
 let currentHistoryFilter = 'all';
+let currentTheme = localStorage.getItem('theme') || 'dark';
+
+// ===== Theme Toggle =====
+function initTheme() {
+  if (currentTheme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+  updateThemeButton();
+}
+
+function toggleTheme() {
+  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('theme', currentTheme);
+
+  if (currentTheme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+  }
+
+  updateThemeButton();
+  updateChartsTheme();
+}
+
+function updateThemeButton() {
+  const btn = document.getElementById('themeToggle');
+  if (currentTheme === 'dark') {
+    btn.innerHTML = '<span class="icon">🌙</span><span class="label">Dark</span>';
+  } else {
+    btn.innerHTML = '<span class="icon">☀️</span><span class="label">Light</span>';
+  }
+}
+
+function getChartOptions() {
+  const isDark = currentTheme === 'dark';
+  return {
+    responsive: true,
+    plugins: {
+      legend: {
+        labels: { color: isDark ? '#f1f5f9' : '#1e293b' }
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color: isDark ? '#94a3b8' : '#64748b' },
+        grid: { color: isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(0, 0, 0, 0.1)' }
+      },
+      y: {
+        ticks: { color: isDark ? '#94a3b8' : '#64748b' },
+        grid: { color: isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(0, 0, 0, 0.1)' }
+      }
+    }
+  };
+}
+
+function updateChartsTheme() {
+  if (latestChart) {
+    latestChart.options = getChartOptions();
+    latestChart.update();
+  }
+  if (historyChart) {
+    historyChart.options = getChartOptions();
+    historyChart.update();
+  }
+}
 
 async function fetchPcList() {
   const res = await fetch(PC_LIST_URL);
@@ -97,7 +162,7 @@ function showOverview(overview) {
   const block = document.getElementById('overviewBlock');
   block.innerHTML = `
     <p>
-      <strong>Total:</strong> ${overview.total}  |  <strong>Plugins:</strong> ${overview.plugin}  |  <strong>Success:</strong> ${overview.success}  |  <strong>Failed:</strong> ${overview.failed}  |  <strong>CPU:</strong> ${overview.cpu}%  |  <strong>RAM:</strong> ${overview.ram}%  |  <strong>GPU:</strong> ${overview.gpu}%
+      <strong>Total:</strong> ${overview.total} | <strong>Plugins:</strong> ${overview.plugin} | <strong>Success:</strong> ${overview.success} | <strong>Failed:</strong> ${overview.failed} | <strong>CPU:</strong> ${overview.cpu}% | <strong>RAM:</strong> ${overview.ram}% | <strong>GPU:</strong> ${overview.gpu}%
     </p>
   `;
 }
@@ -125,16 +190,19 @@ function filterRecentRuns(filter) {
 
 function showRecentRuns(filter = 'all') {
   const table = document.getElementById('recentRunTable');
-  table.innerHTML = `<tr><th>#</th><th>Plugin</th><th>Name</th><th>Result</th><th>Time</th></tr>`;
+  table.innerHTML = `<thead><tr><th>#</th><th>Plugin</th><th>Name</th><th>Result</th><th>Time</th></tr></thead><tbody></tbody>`;
 
   if (!currentRecentRunsData || !currentRecentRunsData[filter]) {
-    table.innerHTML += `<tr><td colspan="5">No record found</td></tr>`;
+    table.querySelector('tbody').innerHTML = `<tr><td colspan="5">No record found</td></tr>`;
     return;
   }
 
   const runs = currentRecentRunsData[filter];
+  const tbody = table.querySelector('tbody');
   runs.forEach((r, i) => {
-    table.innerHTML += `<tr><td>${i + 1}</td><td>${r.plugin}</td><td>${r.name}</td><td>${r.result}</td><td>${r.run_time}</td></tr>`;
+    const rowClass = r.result.toLowerCase().includes('success') ? 'row-success' :
+                     r.result.toLowerCase().includes('fail') ? 'row-failed' : '';
+    tbody.innerHTML += `<tr class="${rowClass}"><td>${i + 1}</td><td>${r.plugin}</td><td>${r.name}</td><td>${r.result}</td><td>${r.run_time}</td></tr>`;
   });
 }
 
@@ -152,11 +220,12 @@ function showMetricsChart(metrics) {
     data: {
       labels,
       datasets: [
-        { label: 'CPU %', data: cpu, borderColor: 'red', fill: false },
-        { label: 'RAM %', data: ram, borderColor: 'blue', fill: false },
-        { label: 'GPU %', data: gpu, borderColor: 'green', fill: false }
+        { label: 'CPU %', data: cpu, borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', fill: true, tension: 0.3 },
+        { label: 'RAM %', data: ram, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true, tension: 0.3 },
+        { label: 'GPU %', data: gpu, borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.1)', fill: true, tension: 0.3 }
       ]
-    }
+    },
+    options: getChartOptions()
   });
 }
 
@@ -293,16 +362,19 @@ function filterHistoryRecentRuns(filter) {
 
 function showHistoryRecentRuns(filter = 'all') {
   const table = document.getElementById('historyRecentRunTable');
-  table.innerHTML = `<tr><th>#</th><th>Plugin</th><th>Name</th><th>Result</th><th>Time</th></tr>`;
+  table.innerHTML = `<thead><tr><th>#</th><th>Plugin</th><th>Name</th><th>Result</th><th>Time</th></tr></thead><tbody></tbody>`;
 
   if (!currentHistoryData || !currentHistoryData[filter]) {
-    table.innerHTML += `<tr><td colspan="5">No record found</td></tr>`;
+    table.querySelector('tbody').innerHTML = `<tr><td colspan="5">No record found</td></tr>`;
     return;
   }
 
   const runs = currentHistoryData[filter];
+  const tbody = table.querySelector('tbody');
   runs.forEach((r, i) => {
-    table.innerHTML += `<tr><td>${i + 1}</td><td>${r.plugin}</td><td>${r.name}</td><td>${r.result}</td><td>${r.run_time}</td></tr>`;
+    const rowClass = r.result.toLowerCase().includes('success') ? 'row-success' :
+                     r.result.toLowerCase().includes('fail') ? 'row-failed' : '';
+    tbody.innerHTML += `<tr class="${rowClass}"><td>${i + 1}</td><td>${r.plugin}</td><td>${r.name}</td><td>${r.result}</td><td>${r.run_time}</td></tr>`;
   });
 }
 
@@ -320,15 +392,17 @@ function showHistoryMetricsChart(metrics) {
     data: {
       labels,
       datasets: [
-        { label: 'CPU %', data: cpu, borderColor: 'red', fill: false },
-        { label: 'RAM %', data: ram, borderColor: 'blue', fill: false },
-        { label: 'GPU %', data: gpu, borderColor: 'green', fill: false }
+        { label: 'CPU %', data: cpu, borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', fill: true, tension: 0.3 },
+        { label: 'RAM %', data: ram, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true, tension: 0.3 },
+        { label: 'GPU %', data: gpu, borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.1)', fill: true, tension: 0.3 }
       ]
-    }
+    },
+    options: getChartOptions()
   });
 }
 
 window.onload = () => {
+  initTheme();
   fetchPcList();
   startAutoRefresh();
 };

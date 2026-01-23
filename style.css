@@ -1,3 +1,49 @@
+/* CSS Variables - Dark Mode (default) */
+:root {
+  --bg-body: #0f172a;
+  --bg-container: #1e293b;
+  --bg-card: #334155;
+  --bg-hover: #475569;
+
+  --primary: #3b82f6;
+  --primary-hover: #60a5fa;
+  --success: #22c55e;
+  --success-hover: #16a34a;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
+  --border: #475569;
+
+  --shadow: rgba(0, 0, 0, 0.3);
+  --table-stripe: rgba(255, 255, 255, 0.02);
+  --table-hover: rgba(255, 255, 255, 0.05);
+}
+
+/* Light Theme */
+[data-theme="light"] {
+  --bg-body: #f1f5f9;
+  --bg-container: #ffffff;
+  --bg-card: #f8fafc;
+  --bg-hover: #e2e8f0;
+
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --success: #16a34a;
+  --success-hover: #15803d;
+  --danger: #dc2626;
+  --warning: #d97706;
+
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+
+  --shadow: rgba(0, 0, 0, 0.1);
+  --table-stripe: rgba(0, 0, 0, 0.02);
+  --table-hover: rgba(0, 0, 0, 0.04);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -6,87 +52,182 @@ body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   padding: 20px;
-  background-color: #f9f9f9;
-  color: #333;
+  background-color: var(--bg-body);
+  color: var(--text);
+  line-height: 1.5;
 }
 
 .container {
   max-width: 960px;
   margin: auto;
-  background: #ffffff;
-  padding: 20px;
+  background: var(--bg-container);
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px var(--shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Header with theme toggle */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.header h2 {
+  margin: 0;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 12px;
   border-radius: 8px;
-  box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle:hover {
+  background: var(--bg-hover);
+  box-shadow: none;
+}
+
+.theme-toggle .icon {
+  font-size: 16px;
 }
 
 h2, h3, h4 {
-  margin-top: 30px;
-  color: #333;
+  margin-top: 24px;
+  color: var(--text);
+}
+
+h2 {
+  font-size: 24px;
+  margin-top: 0;
+}
+
+h3 {
+  font-size: 16px;
+}
+
+h4 {
+  font-size: 14px;
 }
 
 label {
   font-weight: bold;
+  color: var(--text-muted);
 }
 
 select {
-  padding: 5px 10px;
+  padding: 6px 12px;
   margin-left: 10px;
   margin-right: 10px;
+  background-color: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--primary);
 }
 
 button {
-  background-color: #2e8bff;
+  background-color: var(--primary);
   border: none;
   color: white;
-  padding: 6px 12px;
+  padding: 8px 14px;
   margin: 4px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.2s ease;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
 button:hover {
-  background-color: #1a70d1;
+  background-color: var(--primary-hover);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+}
+
+button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
 }
 
 button.active {
-  background-color: #198754;
+  background-color: var(--success);
 }
 
 button.active:hover {
-  background-color: #157347;
+  background-color: var(--success-hover);
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.4);
 }
 
 #countdown {
   margin-left: 15px;
   font-style: italic;
-  color: #666;
+  color: var(--text-muted);
 }
 
+/* Table Styles */
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
   margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 table th,
 table td {
-  padding: 8px 12px;
-  border: 1px solid #ccc;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
   text-align: left;
 }
 
 table th {
-  background-color: #f0f0f0;
+  background-color: var(--bg-card);
+  color: var(--text);
+  font-weight: 600;
+}
+
+table tr {
+  transition: background-color 0.15s ease;
+}
+
+table tbody tr:nth-child(even) {
+  background-color: var(--table-stripe);
+}
+
+table tbody tr:hover {
+  background-color: var(--table-hover);
+}
+
+/* Result row colors */
+table tr.row-success {
+  border-left: 3px solid var(--success);
+}
+
+table tr.row-failed {
+  border-left: 3px solid var(--danger);
 }
 
 #startTime,
 #lastUpdated,
 #timeAgo {
   font-weight: bold;
-  color: #444;
+  color: var(--primary-hover);
 }
 
 .time-refresh-bar {
@@ -94,14 +235,24 @@ table th {
   align-items: center;
   gap: 10px;
   margin: 10px 0;
+  color: var(--text-muted);
 }
 
 .overview-box {
-  background-color: #f0f4ff;
-  padding: 10px;
-  border-left: 4px solid #2e8bff;
-  border-radius: 5px;
+  background: linear-gradient(135deg, var(--bg-container) 0%, var(--bg-card) 100%);
+  padding: 14px;
+  border-left: 4px solid var(--primary);
+  border-radius: 8px;
   margin-bottom: 20px;
+}
+
+.overview-box p {
+  margin: 0;
+  color: var(--text);
+}
+
+.overview-box strong {
+  color: var(--text-muted);
 }
 
 .table-wrapper {
@@ -144,23 +295,35 @@ table th {
 }
 
 .recent-runs-filters button {
-  padding: 4px 8px;
+  padding: 5px 10px;
   font-size: 12px;
   margin: 0;
   min-width: 80px;
 }
 
+/* Dialog/Modal */
 dialog {
   width: 90%;
   max-width: 800px;
-  padding: 20px;
+  padding: 24px;
   border: none;
-  border-radius: 8px;
-  box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
+  border-radius: 12px;
+  background-color: var(--bg-container);
+  color: var(--text);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 dialog::backdrop {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+#historyList {
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-bottom: 10px;
+  padding-right: 8px;
 }
 
 #historyList button {
@@ -168,38 +331,51 @@ dialog::backdrop {
   width: 100%;
   text-align: left;
   margin-bottom: 5px;
-  padding: 6px;
-  border-radius: 4px;
-  background-color: #6c757d;
-  color: white;
-  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background-color: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 #historyList button:hover {
-  background-color: #5a6268;
+  background-color: var(--bg-hover);
+  border-color: var(--primary);
 }
 
 #historyList button.selected-history {
-  background-color: #198754 !important;
+  background-color: var(--success) !important;
+  border-color: var(--success) !important;
+  color: white;
 }
 
 #historyDetail {
-  background-color: #f1f1f1;
-  padding: 10px;
+  background-color: var(--bg-card);
+  padding: 16px;
   margin-top: 10px;
-  border-radius: 6px;
+  border-radius: 8px;
+}
+
+/* Chart container */
+.chart-container {
+  background-color: var(--bg-card);
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 10px;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   body {
     padding: 8px;
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .container {
-    padding: 10px;
+    padding: 12px;
+    border-radius: 8px;
   }
 
   h2 {
@@ -210,6 +386,28 @@ dialog::backdrop {
   h3 {
     font-size: 13px;
     margin-top: 12px;
+  }
+
+  .header {
+    gap: 8px;
+  }
+
+  .header h2 {
+    font-size: 14px;
+  }
+
+  .theme-toggle {
+    padding: 5px 8px;
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  .theme-toggle .icon {
+    font-size: 12px;
+  }
+
+  .theme-toggle .label {
+    display: none;
   }
 
   /* Top bar - tất cả trên 1 hàng */
@@ -257,7 +455,7 @@ dialog::backdrop {
     flex-wrap: nowrap;
     align-items: center;
     gap: 6px;
-    font-size: 9px;
+    font-size: 10px;
     overflow-x: auto;
   }
 
@@ -278,15 +476,16 @@ dialog::backdrop {
     white-space: nowrap;
   }
 
-  /* Overview box - không xuống dòng */
+  /* Overview box */
   .overview-box {
-    font-size: 10px;
+    font-size: 11px;
     padding: 8px;
     overflow-x: auto;
   }
 
   .overview-box span,
-  .overview-box div {
+  .overview-box div,
+  .overview-box p {
     white-space: nowrap;
   }
 
@@ -311,7 +510,7 @@ dialog::backdrop {
 
   table th, table td {
     padding: 5px;
-    font-size: 11px;
+    font-size: 12px;
   }
 
   canvas {
@@ -333,5 +532,9 @@ dialog::backdrop {
 
   dialog h4 {
     font-size: 13px;
+  }
+
+  .chart-container {
+    padding: 10px;
   }
 }

@@ -11,7 +11,13 @@
 
 <body>
   <div class="container">
-    <h2>🔥 PC Monitoring Dashboard</h2>
+    <div class="header">
+      <h2>🔥 PC Monitoring Dashboard</h2>
+      <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+        <span class="icon">🌙</span>
+        <span class="label">Dark</span>
+      </button>
+    </div>
 
     <div class="top-bar">
       <div class="pc-selector">
@@ -51,8 +57,10 @@
       <table id="recentRunTable"></table>
     </div>
 
-    <h3>📈 CPU / RAM Metrics</h3>
-    <canvas id="metricsChart" height="150"></canvas>
+    <h3>📈 CPU / RAM / GPU Metrics</h3>
+    <div class="chart-container">
+      <canvas id="metricsChart" height="150"></canvas>
+    </div>
   </div>
 
   <!-- Dialog History -->
@@ -76,7 +84,9 @@
       <table id="historyRecentRunTable"></table>
 
       <h4>📈 Metrics (History)</h4>
-      <canvas id="historyMetricsChart" height="150"></canvas>
+      <div class="chart-container">
+        <canvas id="historyMetricsChart" height="150"></canvas>
+      </div>
     </div>
     <button onclick="closeHistoryDialog()">❌ Close</button>
   </dialog>
