@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PC Monitoring Dashboard</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -14,9 +15,11 @@
 
     <div class="top-bar">
       <div class="pc-selector">
-        <label for="pcSelector">Select PC:</label>
+        <label for="groupSelector">Group:</label>
+        <select id="groupSelector"></select>
+        <label for="pcSelector">PC:</label>
         <select id="pcSelector"></select>
-        <button onclick="fetchPcList()">🔁 Reload PC List</button>
+        <button onclick="fetchPcList()">🔁 Reload</button>
       </div>
       <button onclick="openHistoryDialog()">📜 View History</button>
     </div>
@@ -31,9 +34,9 @@
     <h3>📌 Overview</h3>
     <div id="overviewBlock" class="overview-box"></div>
 
-    <h3>📊 Miniapp Status</h3>
+    <h3>📊 Plugin Status</h3>
     <div class="table-wrapper">
-      <table id="miniappTable"></table>
+      <table id="pluginTable"></table>
     </div>
 
     <div class="recent-runs-header">
@@ -59,8 +62,8 @@
     <div id="historyDetail">
       <div id="historyMeta"></div>
 
-      <h4>📊 Miniapp (History)</h4>
-      <table id="historyMiniappTable"></table>
+      <h4>📊 Plugin (History)</h4>
+      <table id="historyPluginTable"></table>
 
       <div class="recent-runs-header">
         <h4>⚠️ Recent Run (History)</h4>

@@ -1,5 +1,6 @@
 const PC_LIST_URL = "https://tool-auto-v5-root-default-rtdb.asia-southeast1.firebasedatabase.app/list-pc.json";
 let pcList = {};
+let selectedGroup = localStorage.getItem('selected-group') || null;
 let selectedPc = localStorage.getItem('selected-pc-name') || null;
 let refreshInterval = null;
 let countdown = 30;
@@ -12,10 +13,57 @@ let currentHistoryFilter = 'all';
 async function fetchPcList() {
   const res = await fetch(PC_LIST_URL);
   pcList = await res.json();
+
+  const groups = Object.keys(pcList);
+  if (groups.length === 0) return;
+
+  // If saved group is invalid, use first group
+  if (!selectedGroup || !pcList[selectedGroup]) {
+    selectedGroup = groups[0];
+    localStorage.setItem('selected-group', selectedGroup);
+  }
+
+  // Populate group selector
+  const groupSelector = document.getElementById('groupSelector');
+  groupSelector.innerHTML = '';
+  groups.forEach(group => {
+    const option = document.createElement('option');
+    option.value = group;
+    option.textContent = group;
+    if (selectedGroup === group) option.selected = true;
+    groupSelector.appendChild(option);
+  });
+
+  groupSelector.onchange = () => {
+    selectedGroup = groupSelector.value;
+    localStorage.setItem('selected-group', selectedGroup);
+    // Reset PC selection for new group
+    selectedPc = null;
+    localStorage.removeItem('selected-pc-name');
+    populatePcSelector();
+    fetchLatest();
+  };
+
+  populatePcSelector();
+  fetchLatest();
+}
+
+function populatePcSelector() {
   const pcSelector = document.getElementById('pcSelector');
   pcSelector.innerHTML = '';
 
-  Object.keys(pcList).forEach(pc => {
+  if (!selectedGroup || !pcList[selectedGroup]) return;
+
+  const pcs = Object.keys(pcList[selectedGroup]);
+  if (pcs.length === 0) return;
+
+  // If saved PC is invalid for this group, use first PC
+  if (!selectedPc || !pcList[selectedGroup][selectedPc]) {
+    selectedPc = pcs[0];
+    localStorage.setItem('selected-pc-name', selectedPc);
+  }
+
+  pcs.forEach(pc => {
     const option = document.createElement('option');
     option.value = pc;
     option.textContent = pc;
@@ -23,28 +71,22 @@ async function fetchPcList() {
     pcSelector.appendChild(option);
   });
 
-  if (!pcList[selectedPc]) {
-    selectedPc = Object.keys(pcList)[0];
-    localStorage.setItem('selected-pc-name', selectedPc);
-  }
-
   pcSelector.onchange = () => {
     selectedPc = pcSelector.value;
     localStorage.setItem('selected-pc-name', selectedPc);
     fetchLatest();
   };
-
-  fetchLatest();
 }
 
 async function fetchLatest() {
-  if (!selectedPc || !pcList[selectedPc]) return;
-  const url = `${pcList[selectedPc]}/${selectedPc}/latest.json`;
+  if (!selectedGroup || !selectedPc || !pcList[selectedGroup] || !pcList[selectedGroup][selectedPc]) return;
+  const workerEndpoint = pcList[selectedGroup][selectedPc];
+  const url = `${workerEndpoint}/${selectedGroup}/${selectedPc}/latest.json`;
   const res = await fetch(url);
   const data = await res.json();
 
   showOverview(data.overview);
-  showMiniapps(data.miniapp);
+  showPlugins(data.plugins);
   currentRecentRunsData = data.recent_run || {};
   showRecentRuns(currentRecentRunsFilter);
   showMetricsChart(data.metrics);
@@ -55,16 +97,17 @@ function showOverview(overview) {
   const block = document.getElementById('overviewBlock');
   block.innerHTML = `
     <p>
-      <strong>Total:</strong> ${overview.total}  |  <strong>Miniapps:</strong> ${overview.miniapp}  |  <strong>Success:</strong> ${overview.success}  |  <strong>Failed:</strong> ${overview.failed}  |  <strong>CPU:</strong> ${overview.cpu}%  |  <strong>RAM:</strong> ${overview.ram}%  |  <strong>GPU:</strong> ${overview.gpu}%
+      <strong>Total:</strong> ${overview.total}  |  <strong>Plugins:</strong> ${overview.plugin}  |  <strong>Success:</strong> ${overview.success}  |  <strong>Failed:</strong> ${overview.failed}  |  <strong>CPU:</strong> ${overview.cpu}%  |  <strong>RAM:</strong> ${overview.ram}%  |  <strong>GPU:</strong> ${overview.gpu}%
     </p>
   `;
 }
 
-function showMiniapps(apps) {
-  const table = document.getElementById('miniappTable');
-  table.innerHTML = `<tr><th>#</th><th>Miniapp</th><th>Total</th><th>Success</th><th>Failed</th></tr>`;
-  apps.forEach((a, i) => {
-    table.innerHTML += `<tr><td>${i + 1}</td><td>${a.miniapp}</td><td>${a.total}</td><td>${a.success}</td><td>${a.failed}</td></tr>`;
+function showPlugins(plugins) {
+  const table = document.getElementById('pluginTable');
+  table.innerHTML = `<tr><th>#</th><th>Plugin</th><th>Engines</th><th>Total</th><th>Success</th><th>Failed</th></tr>`;
+  plugins.forEach((p, i) => {
+    const engines = (p.engines && p.engines.length > 0) ? p.engines.join(', ') : '-';
+    table.innerHTML += `<tr><td>${i + 1}</td><td>${p.plugin}</td><td>${engines}</td><td>${p.total}</td><td>${p.success}</td><td>${p.failed}</td></tr>`;
   });
 }
 
@@ -82,7 +125,7 @@ function filterRecentRuns(filter) {
 
 function showRecentRuns(filter = 'all') {
   const table = document.getElementById('recentRunTable');
-  table.innerHTML = `<tr><th>#</th><th>Miniapp</th><th>Name</th><th>Result</th><th>Time</th></tr>`;
+  table.innerHTML = `<tr><th>#</th><th>Plugin</th><th>Name</th><th>Result</th><th>Time</th></tr>`;
 
   if (!currentRecentRunsData || !currentRecentRunsData[filter]) {
     table.innerHTML += `<tr><td colspan="5">No record found</td></tr>`;
@@ -91,7 +134,7 @@ function showRecentRuns(filter = 'all') {
 
   const runs = currentRecentRunsData[filter];
   runs.forEach((r, i) => {
-    table.innerHTML += `<tr><td>${i + 1}</td><td>${r.miniapp}</td><td>${r.name}</td><td>${r.result}</td><td>${r.run_time}</td></tr>`;
+    table.innerHTML += `<tr><td>${i + 1}</td><td>${r.plugin}</td><td>${r.name}</td><td>${r.result}</td><td>${r.run_time}</td></tr>`;
   });
 }
 
@@ -118,7 +161,6 @@ function showMetricsChart(metrics) {
 }
 
 function updateTimeInfo(startTime, updateTime) {
-  // Helper function to format date as YYYY-MM-DD HH:MM:SS
   function formatDateTime(date) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -174,7 +216,7 @@ function closeHistoryDialog() {
   document.getElementById('historyModal').close();
   document.getElementById('historyList').innerHTML = '';
   document.getElementById('historyMeta').innerHTML = '';
-  document.getElementById('historyMiniappTable').innerHTML = '';
+  document.getElementById('historyPluginTable').innerHTML = '';
   document.getElementById('historyRecentRunTable').innerHTML = '';
   if (historyChart) {
     historyChart.destroy();
@@ -183,7 +225,9 @@ function closeHistoryDialog() {
 }
 
 async function loadHistory() {
-  const url = `${pcList[selectedPc]}/${selectedPc}/history.json`;
+  if (!selectedGroup || !selectedPc || !pcList[selectedGroup] || !pcList[selectedGroup][selectedPc]) return;
+  const workerEndpoint = pcList[selectedGroup][selectedPc];
+  const url = `${workerEndpoint}/${selectedGroup}/${selectedPc}/history.json`;
   const res = await fetch(url);
   const history = await res.json();
   const listElem = document.getElementById('historyList');
@@ -203,7 +247,7 @@ async function loadHistory() {
     listElem.appendChild(btn);
 
     if (index === 0) {
-      btn.click(); // Tự động chọn dòng đầu tiên
+      btn.click();
     }
   });
 }
@@ -212,10 +256,10 @@ function showHistoryDetail(data, key) {
   document.getElementById('historyMeta').innerHTML = `
     <p><strong>Start:</strong> ${data.start_time}<br>
        <strong>End:</strong> ${data.update_time}</p>
-    <p><strong>Total:</strong> ${data.overview.total}, <strong>Miniapp:</strong> ${data.overview.miniapp}, <strong>Success:</strong> ${data.overview.success}, <strong>Failed:</strong> ${data.overview.failed}</p>
+    <p><strong>Total:</strong> ${data.overview.total}, <strong>Plugins:</strong> ${data.overview.plugin}, <strong>Success:</strong> ${data.overview.success}, <strong>Failed:</strong> ${data.overview.failed}</p>
   `;
 
-  showHistoryMiniapps(data.miniapp);
+  showHistoryPlugins(data.plugins);
   currentHistoryData = data.recent_run || {};
   currentHistoryFilter = 'all';
   // Reset history filter buttons
@@ -226,11 +270,12 @@ function showHistoryDetail(data, key) {
   showHistoryMetricsChart(data.metrics);
 }
 
-function showHistoryMiniapps(apps) {
-  const table = document.getElementById('historyMiniappTable');
-  table.innerHTML = `<tr><th>#</th><th>Miniapp</th><th>Total</th><th>Success</th><th>Failed</th></tr>`;
-  apps.forEach((a, i) => {
-    table.innerHTML += `<tr><td>${i + 1}</td><td>${a.miniapp}</td><td>${a.total}</td><td>${a.success}</td><td>${a.failed}</td></tr>`;
+function showHistoryPlugins(plugins) {
+  const table = document.getElementById('historyPluginTable');
+  table.innerHTML = `<tr><th>#</th><th>Plugin</th><th>Engines</th><th>Total</th><th>Success</th><th>Failed</th></tr>`;
+  plugins.forEach((p, i) => {
+    const engines = (p.engines && p.engines.length > 0) ? p.engines.join(', ') : '-';
+    table.innerHTML += `<tr><td>${i + 1}</td><td>${p.plugin}</td><td>${engines}</td><td>${p.total}</td><td>${p.success}</td><td>${p.failed}</td></tr>`;
   });
 }
 
@@ -248,7 +293,7 @@ function filterHistoryRecentRuns(filter) {
 
 function showHistoryRecentRuns(filter = 'all') {
   const table = document.getElementById('historyRecentRunTable');
-  table.innerHTML = `<tr><th>#</th><th>Miniapp</th><th>Name</th><th>Result</th><th>Time</th></tr>`;
+  table.innerHTML = `<tr><th>#</th><th>Plugin</th><th>Name</th><th>Result</th><th>Time</th></tr>`;
 
   if (!currentHistoryData || !currentHistoryData[filter]) {
     table.innerHTML += `<tr><td colspan="5">No record found</td></tr>`;
@@ -257,7 +302,7 @@ function showHistoryRecentRuns(filter = 'all') {
 
   const runs = currentHistoryData[filter];
   runs.forEach((r, i) => {
-    table.innerHTML += `<tr><td>${i + 1}</td><td>${r.miniapp}</td><td>${r.name}</td><td>${r.result}</td><td>${r.run_time}</td></tr>`;
+    table.innerHTML += `<tr><td>${i + 1}</td><td>${r.plugin}</td><td>${r.name}</td><td>${r.result}</td><td>${r.run_time}</td></tr>`;
   });
 }
 
