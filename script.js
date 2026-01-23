@@ -197,7 +197,7 @@ function startAutoRefresh() {
   countdown = 30;
   refreshInterval = setInterval(() => {
     countdown--;
-    document.getElementById('countdown').textContent = `⏳ Next refresh in ${countdown}s`;
+    document.getElementById('countdown').textContent = `⏳ ${countdown}s`;
     if (countdown <= 0) {
       fetchLatest();
       countdown = 30;

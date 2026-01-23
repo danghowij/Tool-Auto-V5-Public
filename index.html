@@ -21,14 +21,14 @@
         <select id="pcSelector"></select>
         <button onclick="fetchPcList()">🔁 Reload</button>
       </div>
-      <button onclick="openHistoryDialog()">📜 View History</button>
+      <button onclick="openHistoryDialog()">📜 History</button>
     </div>
 
-    <div>
-      <span>Start time: <span id="startTime">--</span> | Last updated: <span id="lastUpdated">--</span> (<span
-          id="timeAgo">--</span> ago)</span></br></br>
-      <button onclick="fetchLatest()">🔃 Manual Refresh</button>
-      <span id="countdown">⏳ Next refresh in 30s</span>
+    <div class="time-refresh-bar">
+      <span>Start: <span id="startTime">--</span> | Updated: <span id="lastUpdated">--</span> (<span
+          id="timeAgo">--</span> ago)</span>
+      <button onclick="fetchLatest()">🔃 Refresh</button>
+      <span id="countdown">⏳ 30s</span>
     </div>
 
     <h3>📌 Overview</h3>
